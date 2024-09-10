@@ -1,5 +1,5 @@
 
-import { getUserPosts, searchPosts } from '../../lib/appwrite';
+import { getUserPosts, searchPosts, signOut } from '../../lib/appwrite';
 import { View, Text, FlatList,Image, TouchableOpacity} from 'react-native'
 import React, { useEffect} from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -9,11 +9,17 @@ import VideoCard from '../../components/VideoCard'
 import { useGlobalContext } from '../../context/GlobalProvider';
 import { icons } from '../../constants';
 import InfoBox from '../../components/InfoBox';
+import { router } from 'expo-router';
 
 const Profile = () => {
   const {user, setUser, setIsLoggedIn} = useGlobalContext();
   const {data:posts} = useAppwrite(()=>getUserPosts(user.$id));
-  const logout = () => {}
+  const logout = async () => { 
+    await signOut();
+    setUser(null);
+    setIsLoggedIn(false);
+    router.replace('/sign-in')
+  }
   
   return (
     <SafeAreaView className='bg-primary h-full'>
@@ -35,10 +41,10 @@ const Profile = () => {
 
             {/* user avatar */}
             <View className='w-[56px] h-[56px] border border-secondary justify-center items-center p-0.5 rounded-lg'>
-                <Image source={{uri:user.avatar}} className='w-full h-full rounded-lg' resizeMode='cover'/>
+                <Image source={{uri: user?.avatar}} className='w-full h-full rounded-lg' resizeMode='cover'/>
             </View>
             
-            <InfoBox title={user.username} containerStyles='mt-5' titleStyles = 'text-2xl'/>
+            <InfoBox title={user?.username} containerStyles='mt-5' titleStyles = 'text-2xl'/>
             <View className='mt-5 flex-row'>
               <InfoBox 
                 title={posts.length || 0} 
